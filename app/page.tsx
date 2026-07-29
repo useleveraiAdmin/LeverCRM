@@ -23,28 +23,29 @@ export default function LandingPage() {
         className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl"
         style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
       >
-        The CRM built for gyms.
+        Sign in to your gym.
       </h1>
       <p className="mt-4 max-w-xl" style={{ color: "#64748B" }}>
-        Classes, check-ins, members, and billing — one platform for your gym and
-        one app your members actually use.
+        Staff and members sign in here to their gym&apos;s existing LeverCRM account.
       </p>
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
         <Link
-          href="/signup"
+          href="/login"
           className="rounded-lg px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
           style={{ background: "#E63946" }}
-        >
-          Start your gym&apos;s free account
-        </Link>
-        <Link
-          href="/login"
-          className="rounded-lg border px-6 py-3 text-sm font-semibold transition hover:bg-white"
-          style={{ borderColor: "#E8E3DC" }}
         >
           Staff sign in
         </Link>
       </div>
+      <p className="mt-6 text-sm" style={{ color: "#64748B" }}>
+        Members sign in at their gym&apos;s own portal link.
+      </p>
+      <p className="mt-10 text-sm" style={{ color: "#64748B" }}>
+        New gym?{" "}
+        <a href="https://levercrm-landing.netlify.app" style={{ color: "#E63946", fontWeight: 600 }}>
+          Get started at our site
+        </a>
+      </p>
     </main>
   );
 }

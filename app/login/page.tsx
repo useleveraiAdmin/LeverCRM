@@ -2,7 +2,6 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { completeStaffSignupIfNeeded } from "@/lib/auth/complete-signup";
 
@@ -113,9 +112,9 @@ function StaffLoginForm() {
 
         <p className="mt-4 text-center text-sm text-muted">
           New gym?{" "}
-          <Link href="/signup" className="text-gym-primary">
+          <a href="https://levercrm-landing.netlify.app/signup.html" className="text-gym-primary">
             Create an account
-          </Link>
+          </a>
         </p>
       </form>
     </main>
