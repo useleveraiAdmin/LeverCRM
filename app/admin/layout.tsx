@@ -1,0 +1,21 @@
+import { getAdminContext } from "@/lib/admin/context";
+import { AdminNav } from "./admin-nav";
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const context = await getAdminContext();
+
+  return (
+    <div
+      className="flex flex-1"
+      style={
+        {
+          "--gym-primary": context.branding.primaryColor || undefined,
+          "--gym-secondary": context.branding.secondaryColor || undefined,
+        } as React.CSSProperties
+      }
+    >
+      <AdminNav context={context} />
+      <div className="flex-1 overflow-y-auto p-8">{children}</div>
+    </div>
+  );
+}
