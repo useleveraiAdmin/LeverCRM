@@ -16,6 +16,70 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          author_member_id: string | null
+          author_staff_id: string | null
+          body: string
+          created_at: string
+          edited_at: string | null
+          gym_id: string
+          id: string
+          photo_url: string | null
+          pinned: boolean
+          title: string | null
+          type: string
+        }
+        Insert: {
+          author_member_id?: string | null
+          author_staff_id?: string | null
+          body: string
+          created_at?: string
+          edited_at?: string | null
+          gym_id: string
+          id?: string
+          photo_url?: string | null
+          pinned?: boolean
+          title?: string | null
+          type?: string
+        }
+        Update: {
+          author_member_id?: string | null
+          author_staff_id?: string | null
+          body?: string
+          created_at?: string
+          edited_at?: string | null
+          gym_id?: string
+          id?: string
+          photo_url?: string | null
+          pinned?: boolean
+          title?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_author_member_id_fkey"
+            columns: ["author_member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_author_staff_id_fkey"
+            columns: ["author_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           created_at: string
@@ -329,8 +393,41 @@ export type Database = {
           },
         ]
       }
+      gym_levels: {
+        Row: {
+          created_at: string
+          gym_id: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          gym_id: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          gym_id?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_levels_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gyms: {
         Row: {
+          admin_pin_hash: string | null
           created_at: string
           grace_period_ends_at: string | null
           id: string
@@ -342,6 +439,7 @@ export type Database = {
           tier_flags: Json
         }
         Insert: {
+          admin_pin_hash?: string | null
           created_at?: string
           grace_period_ends_at?: string | null
           id?: string
@@ -353,6 +451,7 @@ export type Database = {
           tier_flags?: Json
         }
         Update: {
+          admin_pin_hash?: string | null
           created_at?: string
           grace_period_ends_at?: string | null
           id?: string
@@ -365,6 +464,157 @@ export type Database = {
         }
         Relationships: []
       }
+      instructor_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          gym_id: string
+          id: string
+          staff_id: string
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          gym_id: string
+          id?: string
+          staff_id: string
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          gym_id?: string
+          id?: string
+          staff_id?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instructor_availability_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instructor_availability_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instructor_blocks: {
+        Row: {
+          created_at: string
+          date: string
+          end_time: string | null
+          gym_id: string
+          id: string
+          reason: string | null
+          staff_id: string
+          start_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          end_time?: string | null
+          gym_id: string
+          id?: string
+          reason?: string | null
+          staff_id: string
+          start_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          end_time?: string | null
+          gym_id?: string
+          id?: string
+          reason?: string | null
+          staff_id?: string
+          start_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instructor_blocks_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instructor_blocks_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          gym_id: string
+          id: string
+          member_id: string
+          signature_data_url: string | null
+          signed_at: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          gym_id: string
+          id?: string
+          member_id: string
+          signature_data_url?: string | null
+          signed_at?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          gym_id?: string
+          id?: string
+          member_id?: string
+          signature_data_url?: string | null
+          signed_at?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_documents_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_documents_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
         Row: {
           created_at: string
@@ -373,6 +623,8 @@ export type Database = {
           full_name: string
           gym_id: string
           id: string
+          level_id: string | null
+          parent_member_id: string | null
           phone: string | null
           profile_picture_url: string | null
         }
@@ -383,6 +635,8 @@ export type Database = {
           full_name: string
           gym_id: string
           id: string
+          level_id?: string | null
+          parent_member_id?: string | null
           phone?: string | null
           profile_picture_url?: string | null
         }
@@ -393,6 +647,8 @@ export type Database = {
           full_name?: string
           gym_id?: string
           id?: string
+          level_id?: string | null
+          parent_member_id?: string | null
           phone?: string | null
           profile_picture_url?: string | null
         }
@@ -404,6 +660,193 @@ export type Database = {
             referencedRelation: "gyms"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "members_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "gym_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "members_parent_member_id_fkey"
+            columns: ["parent_member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_participants: {
+        Row: {
+          member_id: string | null
+          staff_id: string | null
+          thread_id: string
+        }
+        Insert: {
+          member_id?: string | null
+          staff_id?: string | null
+          thread_id: string
+        }
+        Update: {
+          member_id?: string | null
+          staff_id?: string | null
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_participants_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_participants_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_threads: {
+        Row: {
+          created_at: string
+          gym_id: string
+          id: string
+          last_message_at: string
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          gym_id: string
+          id?: string
+          last_message_at?: string
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          gym_id?: string
+          id?: string
+          last_message_at?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_threads_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          gym_id: string
+          id: string
+          sender_staff_id: string
+          thread_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          gym_id: string
+          id?: string
+          sender_staff_id: string
+          thread_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          gym_id?: string
+          id?: string
+          sender_staff_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_staff_id_fkey"
+            columns: ["sender_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notes: {
+        Row: {
+          author_staff_id: string
+          body: string
+          created_at: string
+          gym_id: string
+          id: string
+          member_id: string | null
+          pinned: boolean
+        }
+        Insert: {
+          author_staff_id: string
+          body: string
+          created_at?: string
+          gym_id: string
+          id?: string
+          member_id?: string | null
+          pinned?: boolean
+        }
+        Update: {
+          author_staff_id?: string
+          body?: string
+          created_at?: string
+          gym_id?: string
+          id?: string
+          member_id?: string | null
+          pinned?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_author_staff_id_fkey"
+            columns: ["author_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notes_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notifications: {
@@ -411,25 +854,34 @@ export type Database = {
           created_at: string
           gym_id: string
           id: string
-          member_id: string
+          member_id: string | null
           message: string
           read_at: string | null
+          related_id: string | null
+          staff_id: string | null
+          type: string
         }
         Insert: {
           created_at?: string
           gym_id: string
           id?: string
-          member_id: string
+          member_id?: string | null
           message: string
           read_at?: string | null
+          related_id?: string | null
+          staff_id?: string | null
+          type?: string
         }
         Update: {
           created_at?: string
           gym_id?: string
           id?: string
-          member_id?: string
+          member_id?: string | null
           message?: string
           read_at?: string | null
+          related_id?: string | null
+          staff_id?: string | null
+          type?: string
         }
         Relationships: [
           {
@@ -444,6 +896,13 @@ export type Database = {
             columns: ["member_id"]
             isOneToOne: false
             referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
             referencedColumns: ["id"]
           },
         ]
@@ -513,6 +972,7 @@ export type Database = {
           image_url: string | null
           name: string
           price_cents: number
+          product_type: string
           stock_count: number
         }
         Insert: {
@@ -524,6 +984,7 @@ export type Database = {
           image_url?: string | null
           name: string
           price_cents: number
+          product_type?: string
           stock_count?: number
         }
         Update: {
@@ -535,6 +996,7 @@ export type Database = {
           image_url?: string | null
           name?: string
           price_cents?: number
+          product_type?: string
           stock_count?: number
         }
         Relationships: [
@@ -547,30 +1009,86 @@ export type Database = {
           },
         ]
       }
+      programs: {
+        Row: {
+          created_at: string
+          description: string | null
+          gym_id: string
+          highlights: Json
+          id: string
+          level_tags: Json
+          name: string
+          sort_order: number
+          tagline: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          gym_id: string
+          highlights?: Json
+          id?: string
+          level_tags?: Json
+          name: string
+          sort_order?: number
+          tagline?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          gym_id?: string
+          highlights?: Json
+          id?: string
+          level_tags?: Json
+          name?: string
+          sort_order?: number
+          tagline?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programs_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff: {
         Row: {
+          applecash_handle: string | null
+          cashapp_handle: string | null
           created_at: string
           email: string
           full_name: string
           gym_id: string
           id: string
           role: string
+          venmo_handle: string | null
+          zelle_handle: string | null
         }
         Insert: {
+          applecash_handle?: string | null
+          cashapp_handle?: string | null
           created_at?: string
           email: string
           full_name: string
           gym_id: string
           id: string
           role: string
+          venmo_handle?: string | null
+          zelle_handle?: string | null
         }
         Update: {
+          applecash_handle?: string | null
+          cashapp_handle?: string | null
           created_at?: string
           email?: string
           full_name?: string
           gym_id?: string
           id?: string
           role?: string
+          venmo_handle?: string | null
+          zelle_handle?: string | null
         }
         Relationships: [
           {
@@ -620,13 +1138,24 @@ export type Database = {
       }
       current_gym_id: { Args: never; Returns: string }
       current_staff_role: { Args: never; Returns: string }
+      get_class_attendees: {
+        Args: { p_class_id: string }
+        Returns: {
+          full_name: string
+          member_id: string
+        }[]
+      }
       gym_has_feature: {
         Args: { p_feature: string; p_gym_id: string }
         Returns: boolean
       }
+      has_admin_pin: { Args: never; Returns: boolean }
       is_current_member: { Args: never; Returns: boolean }
       is_gym_slug_available: { Args: { p_slug: string }; Returns: boolean }
+      is_thread_participant: { Args: { p_thread_id: string }; Returns: boolean }
+      set_admin_pin: { Args: { p_pin: string }; Returns: undefined }
       sweep_expired_grace_periods: { Args: never; Returns: undefined }
+      verify_admin_pin: { Args: { p_pin: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
