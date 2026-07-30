@@ -16,11 +16,11 @@ export default async function StaffPage() {
       <h1 className="text-2xl font-semibold">Staff</h1>
       <p className="mt-1 text-muted">Manage who has access to {context.gymName}&apos;s admin.</p>
 
-      <div className="mt-8 rounded-xl border border-border bg-surface p-6">
+      <div className="mt-8">
         <InviteStaffForm />
       </div>
 
-      <div className="mt-6 rounded-xl border border-border bg-surface p-6">
+      <div className="card mt-6">
         <StaffTable staff={staff ?? []} currentUserId={context.userId} />
       </div>
     </div>

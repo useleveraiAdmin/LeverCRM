@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ImageUpload } from "@/components/image-upload";
 
 const POST_TYPES = [
   { value: "post", label: "Post" },
@@ -36,6 +37,7 @@ export function ComposeAnnouncement({ gymId, staffId }: { gymId: string; staffId
   const [photoUrl, setPhotoUrl] = useState("");
   const [pinned, setPinned] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,6 +58,7 @@ export function ComposeAnnouncement({ gymId, staffId }: { gymId: string; staffId
     setPinned(false);
     setType("post");
     setLoading(false);
+    setResetKey((k) => k + 1);
     router.refresh();
   }
 
@@ -78,7 +81,7 @@ export function ComposeAnnouncement({ gymId, staffId }: { gymId: string; staffId
         rows={3}
         className="input"
       />
-      <input value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} placeholder="Photo URL (optional)" className="input" />
+      <ImageUpload key={resetKey} gymId={gymId} folder="announcements" currentUrl={photoUrl || null} onUploaded={setPhotoUrl} />
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} />

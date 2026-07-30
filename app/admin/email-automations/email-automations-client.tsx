@@ -4,6 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+type Settings = {
+  birthday_enabled: boolean;
+  reengagement_enabled: boolean;
+  class_reminder_enabled: boolean;
+  sms_enabled: boolean;
+};
+
 export function EmailAutomationSettingsForm({
   gymId,
   initialBirthday,
@@ -19,72 +26,77 @@ export function EmailAutomationSettingsForm({
 }) {
   const router = useRouter();
   const supabase = createClient();
-  const [birthday, setBirthday] = useState(initialBirthday);
-  const [reengagement, setReengagement] = useState(initialReengagement);
-  const [classReminder, setClassReminder] = useState(initialClassReminder);
-  const [sms, setSms] = useState(initialSms);
-  const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [settings, setSettings] = useState<Settings>({
+    birthday_enabled: initialBirthday,
+    reengagement_enabled: initialReengagement,
+    class_reminder_enabled: initialClassReminder,
+    sms_enabled: initialSms,
+  });
+  const [savingKey, setSavingKey] = useState<keyof Settings | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setSaved(false);
-
-    await supabase.from("email_automation_settings").upsert({
-      gym_id: gymId,
-      birthday_enabled: birthday,
-      reengagement_enabled: reengagement,
-      class_reminder_enabled: classReminder,
-      sms_enabled: sms,
-    });
-
-    setLoading(false);
-    setSaved(true);
+  async function handleToggle(key: keyof Settings, value: boolean) {
+    setSavingKey(key);
+    const next = { ...settings, [key]: value };
+    setSettings(next);
+    await supabase.from("email_automation_settings").upsert({ gym_id: gymId, ...next });
+    setSavingKey(null);
     router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Toggle label="Birthday emails" checked={birthday} onChange={setBirthday} />
+    <div className="flex flex-col gap-3">
+      <Toggle
+        label="Birthday emails"
+        checked={settings.birthday_enabled}
+        saving={savingKey === "birthday_enabled"}
+        onChange={(v) => handleToggle("birthday_enabled", v)}
+      />
       <Toggle
         label="Re-engagement emails (45 days inactive)"
-        checked={reengagement}
-        onChange={setReengagement}
+        checked={settings.reengagement_enabled}
+        saving={savingKey === "reengagement_enabled"}
+        onChange={(v) => handleToggle("reengagement_enabled", v)}
       />
-      <Toggle label="Class reminder emails" checked={classReminder} onChange={setClassReminder} />
+      <Toggle
+        label="Class reminder emails"
+        checked={settings.class_reminder_enabled}
+        saving={savingKey === "class_reminder_enabled"}
+        onChange={(v) => handleToggle("class_reminder_enabled", v)}
+      />
       <div>
-        <Toggle label="Also send SMS for the above" checked={sms} onChange={setSms} />
+        <Toggle
+          label="Also send SMS for the above"
+          checked={settings.sms_enabled}
+          saving={savingKey === "sms_enabled"}
+          onChange={(v) => handleToggle("sms_enabled", v)}
+        />
         <p className="mt-1.5 text-xs text-muted">
           SMS delivery isn&apos;t connected yet — this saves your preference now so texts go out
           automatically once a provider is configured.
         </p>
       </div>
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-fit rounded-lg bg-gym-primary px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
-      >
-        {loading ? "Saving…" : "Save"}
-      </button>
-      {saved && <p className="text-sm text-emerald-400">Saved.</p>}
-    </form>
+    </div>
   );
 }
 
 function Toggle({
   label,
   checked,
+  saving,
   onChange,
 }: {
   label: string;
   checked: boolean;
+  saving: boolean;
   onChange: (v: boolean) => void;
 }) {
   return (
     <label className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
       <span className="text-sm">{label}</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <div className="flex items-center gap-2">
+        {saving && <span className="text-xs text-muted">Saving…</span>}
+        <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      </div>
     </label>
   );
 }

@@ -30,18 +30,20 @@ export function ProfileEditForm({
 }) {
   const router = useRouter();
   const supabase = createClient();
+  const [editing, setEditing] = useState(false);
   const [name, setName] = useState(fullName);
   const [phoneVal, setPhoneVal] = useState(phone ?? "");
   const [dob, setDob] = useState(dateOfBirth ?? "");
   const [level, setLevel] = useState(levelId ?? "");
   const [parent, setParent] = useState(parentMemberId ?? "");
   const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
+
+  const levelName = levels.find((l) => l.id === levelId)?.name ?? "—";
+  const parentName = otherMembers.find((m) => m.id === parentMemberId)?.full_name ?? "—";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setSaved(false);
     await supabase
       .from("members")
       .update({
@@ -53,27 +55,55 @@ export function ProfileEditForm({
       })
       .eq("id", memberId);
     setLoading(false);
-    setSaved(true);
+    setEditing(false);
     router.refresh();
+  }
+
+  function handleCancel() {
+    setName(fullName);
+    setPhoneVal(phone ?? "");
+    setDob(dateOfBirth ?? "");
+    setLevel(levelId ?? "");
+    setParent(parentMemberId ?? "");
+    setEditing(false);
+  }
+
+  if (!editing) {
+    return (
+      <div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Full name" value={fullName} />
+          <Field label="Phone" value={phone ?? "—"} />
+          <Field label="Date of birth" value={dateOfBirth ?? "—"} />
+          <Field label="Level" value={levelName} />
+          <Field label="Parent / guardian" value={parentName} className="sm:col-span-2" />
+        </div>
+        {canManage && (
+          <button className="btn btn-outline mt-4" onClick={() => setEditing(true)}>
+            Edit profile
+          </button>
+        )}
+      </div>
+    );
   }
 
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Full name</span>
-        <input disabled={!canManage} value={name} onChange={(e) => setName(e.target.value)} className="input" />
+        <input value={name} onChange={(e) => setName(e.target.value)} className="input" />
       </label>
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Phone</span>
-        <input disabled={!canManage} value={phoneVal} onChange={(e) => setPhoneVal(e.target.value)} className="input" />
+        <input value={phoneVal} onChange={(e) => setPhoneVal(e.target.value)} className="input" />
       </label>
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Date of birth</span>
-        <input disabled={!canManage} type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="input" />
+        <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="input" />
       </label>
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Level</span>
-        <select disabled={!canManage} value={level} onChange={(e) => setLevel(e.target.value)} className="input">
+        <select value={level} onChange={(e) => setLevel(e.target.value)} className="input">
           <option value="">None</option>
           {levels.map((l) => (
             <option key={l.id} value={l.id}>
@@ -84,7 +114,7 @@ export function ProfileEditForm({
       </label>
       <label className="flex flex-col gap-1.5 sm:col-span-2">
         <span className="text-xs font-medium text-muted">Parent / guardian (family link)</span>
-        <select disabled={!canManage} value={parent} onChange={(e) => setParent(e.target.value)} className="input">
+        <select value={parent} onChange={(e) => setParent(e.target.value)} className="input">
           <option value="">None</option>
           {otherMembers.map((m) => (
             <option key={m.id} value={m.id}>
@@ -93,14 +123,24 @@ export function ProfileEditForm({
           ))}
         </select>
       </label>
-      {canManage && (
-        <div className="sm:col-span-2">
-          <button type="submit" disabled={loading} className="btn btn-primary">
-            {loading ? "Saving…" : saved ? "Saved ✓" : "Save changes"}
-          </button>
-        </div>
-      )}
+      <div className="flex gap-2 sm:col-span-2">
+        <button type="submit" disabled={loading} className="btn btn-primary">
+          {loading ? "Saving…" : "Save changes"}
+        </button>
+        <button type="button" className="btn btn-outline" onClick={handleCancel}>
+          Cancel
+        </button>
+      </div>
     </form>
+  );
+}
+
+function Field({ label, value, className }: { label: string; value: string; className?: string }) {
+  return (
+    <div className={className}>
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <p className="mt-0.5 text-sm">{value}</p>
+    </div>
   );
 }
 

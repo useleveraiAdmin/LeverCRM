@@ -40,7 +40,7 @@ export default async function ClassesPage() {
       <p className="mt-1 text-muted">Schedule, capacity, and waitlists.</p>
 
       {canManage && (
-        <div className="mt-8 rounded-xl border border-border bg-surface p-6">
+        <div className="mt-8">
           <CreateClassForm instructors={instructors ?? []} canManage={canManage} gymId={context.gymId} />
         </div>
       )}
@@ -50,10 +50,7 @@ export default async function ClassesPage() {
           const booked = bookedByClass.get(c.id) ?? 0;
           const waitlisted = waitlistedByClass.get(c.id) ?? 0;
           return (
-            <div
-              key={c.id}
-              className="flex items-center justify-between rounded-xl border border-border bg-surface p-4"
-            >
+            <div key={c.id} className="card flex items-center justify-between">
               <div>
                 <p className="font-medium">{c.name}</p>
                 <p className="text-sm text-muted">

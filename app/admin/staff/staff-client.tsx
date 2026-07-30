@@ -83,6 +83,7 @@ export function StaffTable({ staff, currentUserId }: { staff: StaffRow[]; curren
 
 export function InviteStaffForm() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<(typeof ROLES)[number]>("front_desk");
@@ -113,11 +114,20 @@ export function InviteStaffForm() {
     setEmail("");
     setFullName("");
     setLoading(false);
+    setOpen(false);
     router.refresh();
   }
 
+  if (!open) {
+    return (
+      <button className="btn btn-primary" onClick={() => setOpen(true)}>
+        + Invite staff member
+      </button>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
+    <form onSubmit={handleSubmit} className="card flex flex-wrap items-end gap-3">
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Full name</span>
         <input
@@ -151,15 +161,14 @@ export function InviteStaffForm() {
           ))}
         </select>
       </label>
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded-lg bg-gym-primary px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
-      >
+      <button type="submit" disabled={loading} className="btn btn-primary">
         {loading ? "Sending invite…" : "Invite staff"}
       </button>
-      {error && <p className="w-full text-sm text-red-400">{error}</p>}
-      {success && <p className="w-full text-sm text-emerald-400">Invite sent.</p>}
+      <button type="button" className="btn btn-outline" onClick={() => setOpen(false)}>
+        Cancel
+      </button>
+      {error && <p className="w-full text-sm" style={{ color: "var(--danger)" }}>{error}</p>}
+      {success && <p className="w-full text-sm" style={{ color: "var(--success)" }}>Invite sent.</p>}
     </form>
   );
 }

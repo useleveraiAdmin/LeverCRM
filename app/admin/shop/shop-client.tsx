@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ImageUpload } from "@/components/image-upload";
 
 export function CreateProductForm({ gymId }: { gymId: string }) {
   const router = useRouter();
   const supabase = createClient();
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [productType, setProductType] = useState<"retail" | "membership" | "package">("retail");
@@ -45,11 +47,20 @@ export function CreateProductForm({ gymId }: { gymId: string }) {
     setStock(0);
     setImageUrl("");
     setLoading(false);
+    setOpen(false);
     router.refresh();
   }
 
+  if (!open) {
+    return (
+      <button className="btn btn-primary" onClick={() => setOpen(true)}>
+        + Add product
+      </button>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="card flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-muted">Product name</span>
@@ -86,23 +97,24 @@ export function CreateProductForm({ gymId }: { gymId: string }) {
             className="input"
           />
         </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Image URL (optional)</span>
-          <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="input" />
-        </label>
       </div>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted">Image (optional)</span>
+        <ImageUpload gymId={gymId} folder="products" currentUrl={imageUrl || null} onUploaded={setImageUrl} />
+      </label>
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Description (optional)</span>
         <input value={description} onChange={(e) => setDescription(e.target.value)} className="input" />
       </label>
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-fit rounded-lg bg-gym-primary px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
-      >
-        {loading ? "Adding…" : "Add product"}
-      </button>
+      {error && <p className="text-sm" style={{ color: "var(--danger)" }}>{error}</p>}
+      <div className="flex gap-2">
+        <button type="submit" disabled={loading} className="btn btn-primary w-fit">
+          {loading ? "Adding…" : "Add product"}
+        </button>
+        <button type="button" className="btn btn-outline" onClick={() => setOpen(false)}>
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

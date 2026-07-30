@@ -22,8 +22,9 @@ export default async function ProfilePage({
       <h1 className="text-2xl font-semibold">Profile</h1>
       <p className="mt-1 text-muted">Keep your details up to date.</p>
 
-      <div className="mt-8 max-w-md rounded-xl border border-border bg-surface p-6">
+      <div className="card mt-8 max-w-md">
         <ProfileForm
+          gymId={context.gymId}
           memberId={context.memberId}
           initialFullName={member?.full_name ?? ""}
           initialPhone={member?.phone ?? null}

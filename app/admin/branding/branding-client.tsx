@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ImageUpload } from "@/components/image-upload";
 
 export function BrandingForm({
   gymId,
@@ -17,16 +18,15 @@ export function BrandingForm({
 }) {
   const router = useRouter();
   const supabase = createClient();
+  const [editing, setEditing] = useState(false);
   const [logoUrl, setLogoUrl] = useState(initialLogoUrl ?? "");
-  const [primary, setPrimary] = useState(initialPrimary ?? "#3fc1ff");
-  const [secondary, setSecondary] = useState(initialSecondary ?? "#d9f0ff");
+  const [primary, setPrimary] = useState(initialPrimary ?? "#14b8a6");
+  const [secondary, setSecondary] = useState(initialSecondary ?? "#ccfbf1");
   const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setSaved(false);
 
     await supabase
       .from("gym_branding")
@@ -34,20 +34,47 @@ export function BrandingForm({
       .eq("gym_id", gymId);
 
     setLoading(false);
-    setSaved(true);
+    setEditing(false);
     router.refresh();
+  }
+
+  function handleCancel() {
+    setLogoUrl(initialLogoUrl ?? "");
+    setPrimary(initialPrimary ?? "#14b8a6");
+    setSecondary(initialSecondary ?? "#ccfbf1");
+    setEditing(false);
+  }
+
+  if (!editing) {
+    return (
+      <div className="flex flex-col gap-4">
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Logo" className="h-14 w-14 rounded-lg border object-cover" style={{ borderColor: "var(--border)" }} />
+        ) : (
+          <div
+            className="flex h-14 w-14 items-center justify-center rounded-lg text-xs text-muted"
+            style={{ background: "var(--surface-2)" }}
+          >
+            No logo
+          </div>
+        )}
+        <div className="flex gap-6">
+          <ColorSwatch label="Primary color" color={primary} />
+          <ColorSwatch label="Secondary color" color={secondary} />
+        </div>
+        <button className="btn btn-outline w-fit" onClick={() => setEditing(true)}>
+          Edit branding
+        </button>
+      </div>
+    );
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted">Logo URL</span>
-        <input
-          value={logoUrl}
-          onChange={(e) => setLogoUrl(e.target.value)}
-          placeholder="https://…"
-          className="input"
-        />
+        <span className="text-sm font-medium text-muted">Logo</span>
+        <ImageUpload gymId={gymId} folder="branding" currentUrl={logoUrl || null} onUploaded={setLogoUrl} />
       </label>
       <div className="flex gap-6">
         <label className="flex flex-col gap-1.5">
@@ -69,14 +96,26 @@ export function BrandingForm({
           />
         </label>
       </div>
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-fit rounded-lg bg-gym-primary px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
-      >
-        {loading ? "Saving…" : "Save branding"}
-      </button>
-      {saved && <p className="text-sm text-emerald-400">Saved.</p>}
+      <div className="flex gap-2">
+        <button type="submit" disabled={loading} className="btn btn-primary">
+          {loading ? "Saving…" : "Save branding"}
+        </button>
+        <button type="button" className="btn btn-outline" onClick={handleCancel}>
+          Cancel
+        </button>
+      </div>
     </form>
+  );
+}
+
+function ColorSwatch({ label, color }: { label: string; color: string }) {
+  return (
+    <div>
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <div className="mt-1 flex items-center gap-2">
+        <span className="h-6 w-6 rounded border" style={{ background: color, borderColor: "var(--border)" }} />
+        <span className="text-sm">{color}</span>
+      </div>
+    </div>
   );
 }

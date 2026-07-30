@@ -66,7 +66,11 @@ export default async function ClientsPage({
           <tbody>
             {clients.map((c) => (
               <tr key={c.id}>
-                <td className="font-medium">{c.full_name}</td>
+                <td className="font-medium">
+                  <Link href={`/admin/clients/${c.id}`} className="hover:underline">
+                    {c.full_name}
+                  </Link>
+                </td>
                 <td className="text-muted">{c.email}</td>
                 <td className="text-muted">{c.phone ?? "—"}</td>
                 <td className="text-muted">{c.level_name ?? "—"}</td>

@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminContext } from "@/lib/admin/context";
+import { deriveTierLabel } from "@/lib/tiers";
 import { UpgradeButtons } from "./billing-client";
 
-const TIER_LABELS: Record<string, string> = {
-  none: "Base (free)",
+const STATUS_LABELS: Record<string, string> = {
+  none: "No active subscription",
   active: "Active",
   past_due: "Past due",
   canceled: "Canceled",
@@ -22,19 +23,21 @@ export default async function BillingPage() {
     .single();
 
   const flags = context.tierFlags;
+  const tierLabel = deriveTierLabel(flags);
 
   return (
     <div>
       <h1 className="text-2xl font-semibold">Billing</h1>
       <p className="mt-1 text-muted">Your plan and feature access.</p>
 
-      <div className="mt-8 max-w-lg rounded-xl border border-border bg-surface p-6">
-        <p className="text-sm text-muted">Status</p>
-        <p className="mt-1 text-lg font-semibold">
-          {TIER_LABELS[gym?.subscription_status ?? "none"] ?? gym?.subscription_status}
+      <div className="card mt-8 max-w-lg">
+        <p className="text-sm text-muted">Subscription tier</p>
+        <p className="mt-1 text-2xl font-semibold">{tierLabel}</p>
+        <p className="mt-2 text-sm text-muted">
+          Payment status: {STATUS_LABELS[gym?.subscription_status ?? "none"] ?? gym?.subscription_status}
         </p>
         {gym?.grace_period_ends_at && (
-          <p className="mt-2 text-sm text-amber-400">
+          <p className="mt-2 text-sm" style={{ color: "var(--warning-fg)" }}>
             Payment issue — features stay active until{" "}
             {new Date(gym.grace_period_ends_at).toLocaleDateString()} unless resolved.
           </p>
@@ -60,9 +63,9 @@ export default async function BillingPage() {
 
 function FeatureRow({ label, enabled }: { label: string; enabled: boolean }) {
   return (
-    <div className="flex items-center justify-between border-b border-border/50 py-2">
+    <div className="flex items-center justify-between border-b py-2" style={{ borderColor: "var(--border)" }}>
       <span>{label}</span>
-      <span className={enabled ? "text-emerald-400" : "text-muted"}>
+      <span style={{ color: enabled ? "var(--success)" : "var(--muted)" }}>
         {enabled ? "Included" : "Not included"}
       </span>
     </div>

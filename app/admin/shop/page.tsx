@@ -26,16 +26,16 @@ export default async function ShopPage() {
       <h1 className="text-2xl font-semibold">Gym shop</h1>
       <p className="mt-1 text-muted">Manage products and pickups.</p>
 
-      <div className="mt-8 rounded-xl border border-border bg-surface p-6">
+      <div className="mt-8">
         <CreateProductForm gymId={context.gymId} />
       </div>
 
-      <div className="mt-6 rounded-xl border border-border bg-surface p-6">
+      <div className="card mt-6">
         <h2 className="mb-4 text-lg font-semibold">Products</h2>
         <ProductsTable products={products ?? []} />
       </div>
 
-      <div className="mt-6 rounded-xl border border-border bg-surface p-6">
+      <div className="card mt-6">
         <h2 className="mb-4 text-lg font-semibold">Awaiting pickup</h2>
         <PendingOrdersList
           orders={

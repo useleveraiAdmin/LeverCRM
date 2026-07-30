@@ -13,7 +13,7 @@ export default async function BrandingPage() {
         Your logo and colors show up across both the staff and member apps.
       </p>
 
-      <div className="mt-8 max-w-md rounded-xl border border-border bg-surface p-6">
+      <div className="card mt-8 max-w-md">
         <BrandingForm
           gymId={context.gymId}
           initialLogoUrl={context.branding.logoUrl}

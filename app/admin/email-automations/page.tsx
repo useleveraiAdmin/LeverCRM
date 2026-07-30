@@ -23,7 +23,7 @@ export default async function EmailAutomationsPage() {
         reminders.
       </p>
 
-      <div className="mt-8 max-w-md rounded-xl border border-border bg-surface p-6">
+      <div className="card mt-8 max-w-md">
         <EmailAutomationSettingsForm
           gymId={context.gymId}
           initialBirthday={settings?.birthday_enabled ?? true}
