@@ -13,6 +13,8 @@ export function MemberNav({ context }: { context: MemberContext }) {
 
   const items = [
     { href: `${base}/calendar`, label: "Calendar", show: true, icon: CalendarIcon },
+    { href: `${base}/updates`, label: "Updates", show: true, icon: MegaphoneIcon },
+    { href: `${base}/programs`, label: "Programs", show: true, icon: BookIcon },
     { href: `${base}/checkins`, label: "Check-ins", show: true, icon: CheckIcon },
     {
       href: `${base}/appointments`,
@@ -80,6 +82,21 @@ function BagIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M6 8h12l-1 12H7L6 8Z" />
       <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+    </svg>
+  );
+}
+function MegaphoneIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M3 11v2a2 2 0 0 0 2 2h1l2 5h2l-1.5-5H10l8 4V5l-8 4H5a2 2 0 0 0-2 2Z" />
+    </svg>
+  );
+}
+function BookIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z" />
+      <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20" />
     </svg>
   );
 }

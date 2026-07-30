@@ -1145,6 +1145,13 @@ export type Database = {
           member_id: string
         }[]
       }
+      get_member_names: {
+        Args: { p_member_ids: string[] }
+        Returns: {
+          full_name: string
+          member_id: string
+        }[]
+      }
       gym_has_feature: {
         Args: { p_feature: string; p_gym_id: string }
         Returns: boolean

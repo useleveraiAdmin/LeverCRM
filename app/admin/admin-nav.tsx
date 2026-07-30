@@ -20,6 +20,7 @@ export function AdminNav({ context }: { context: AdminContext }) {
   const items: NavItem[] = [
     { href: "/admin/dashboard", label: "Dashboard", show: true },
     { href: "/admin/classes", label: "Classes", show: true },
+    { href: "/admin/programs", label: "Programs", show: true },
     { href: "/admin/checkins", label: "Check-in", show: true },
     { href: "/admin/clients", label: "Clients", show: true },
     { href: "/admin/announcements", label: "Announcements", show: true },

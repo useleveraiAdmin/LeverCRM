@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getMemberContext } from "@/lib/member/context";
-import { BookButton, CancelBookingButton } from "./calendar-client";
+import { BookButton, CancelBookingButton, AttendeeList, ShareClassButton } from "./calendar-client";
 
 export default async function CalendarPage({
   params,
@@ -47,42 +47,45 @@ export default async function CalendarPage({
           const isFull = booked >= c.capacity;
 
           return (
-            <div
-              key={c.id}
-              className="flex items-center justify-between rounded-xl border border-border bg-surface p-4"
-            >
-              <div>
-                <p className="font-medium">{c.name}</p>
-                <p className="text-sm text-muted">
-                  {new Date(c.start_at).toLocaleString(undefined, {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                  {" · "}
-                  {booked}/{c.capacity} booked
-                </p>
-                {c.description && <p className="mt-1 text-sm text-muted">{c.description}</p>}
-              </div>
-
-              {mine ? (
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`text-xs font-medium ${
-                      mine.status === "booked" ? "text-emerald-400" : "text-amber-400"
-                    }`}
-                  >
-                    {mine.status === "booked" ? "Booked" : `Waitlisted (#${mine.waitlist_position})`}
-                  </span>
-                  <CancelBookingButton bookingId={mine.id} />
+            <div key={c.id} className="card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">{c.name}</p>
+                  <p className="text-sm text-muted">
+                    {new Date(c.start_at).toLocaleString(undefined, {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                    {" · "}
+                    {booked}/{c.capacity} booked
+                  </p>
+                  {c.description && <p className="mt-1 text-sm text-muted">{c.description}</p>}
                 </div>
-              ) : isFull && !c.waitlist_enabled ? (
-                <span className="text-sm text-muted">Full</span>
-              ) : (
-                <BookButton classId={c.id} gymId={context.gymId} memberId={context.memberId} />
-              )}
+
+                {mine ? (
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`text-xs font-medium ${
+                        mine.status === "booked" ? "text-emerald-400" : "text-amber-400"
+                      }`}
+                    >
+                      {mine.status === "booked" ? "Booked" : `Waitlisted (#${mine.waitlist_position})`}
+                    </span>
+                    <CancelBookingButton bookingId={mine.id} />
+                  </div>
+                ) : isFull && !c.waitlist_enabled ? (
+                  <span className="text-sm text-muted">Full</span>
+                ) : (
+                  <BookButton classId={c.id} gymId={context.gymId} memberId={context.memberId} />
+                )}
+              </div>
+              <div className="mt-2 flex items-center justify-between">
+                <AttendeeList classId={c.id} />
+                <ShareClassButton className={c.name} gymSlug={gymSlug} />
+              </div>
             </div>
           );
         })}
