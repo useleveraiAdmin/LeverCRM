@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     >
       <AdminNav context={context} />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <AdminTopbar fullName={context.fullName} role={context.role} />
+        <AdminTopbar fullName={context.fullName} role={context.role} staffId={context.staffId} />
         <main className="flex-1 overflow-y-auto p-8">{children}</main>
       </div>
     </div>

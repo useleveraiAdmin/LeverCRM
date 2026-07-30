@@ -1,4 +1,5 @@
-"use client";
+import { AdminSearch } from "./admin-search";
+import { NotificationsBell } from "./admin-notifications";
 
 const ROLE_LABEL: Record<string, string> = {
   owner: "Owner",
@@ -6,7 +7,15 @@ const ROLE_LABEL: Record<string, string> = {
   front_desk: "Front Desk",
 };
 
-export function AdminTopbar({ fullName, role }: { fullName: string; role: string }) {
+export function AdminTopbar({
+  fullName,
+  role,
+  staffId,
+}: {
+  fullName: string;
+  role: string;
+  staffId: string;
+}) {
   const initials = fullName
     .split(" ")
     .map((p) => p[0])
@@ -19,21 +28,9 @@ export function AdminTopbar({ fullName, role }: { fullName: string; role: string
       className="flex h-15 shrink-0 items-center justify-between border-b px-6"
       style={{ background: "var(--surface)", borderColor: "var(--border)" }}
     >
-      <input
-        placeholder="Search clients…"
-        className="input max-w-xs"
-        // Global search is wired up in a later phase; the field is present
-        // now so the shell layout doesn't shift when it goes live.
-        disabled
-      />
+      <AdminSearch />
       <div className="flex items-center gap-4">
-        <button
-          type="button"
-          className="relative rounded-full p-2 transition hover:opacity-70"
-          aria-label="Notifications"
-        >
-          <BellIcon />
-        </button>
+        <NotificationsBell staffId={staffId} />
         <div className="flex items-center gap-2">
           <div
             className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
@@ -45,19 +42,5 @@ export function AdminTopbar({ fullName, role }: { fullName: string; role: string
         </div>
       </div>
     </header>
-  );
-}
-
-function BellIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: "var(--muted)" }}>
-      <path
-        d="M12 2a6 6 0 0 0-6 6v3.6c0 .7-.3 1.4-.8 1.9L4 15v1h16v-1l-1.2-1.5c-.5-.5-.8-1.2-.8-1.9V8a6 6 0 0 0-6-6Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
   );
 }
