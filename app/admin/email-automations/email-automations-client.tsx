@@ -9,17 +9,20 @@ export function EmailAutomationSettingsForm({
   initialBirthday,
   initialReengagement,
   initialClassReminder,
+  initialSms,
 }: {
   gymId: string;
   initialBirthday: boolean;
   initialReengagement: boolean;
   initialClassReminder: boolean;
+  initialSms: boolean;
 }) {
   const router = useRouter();
   const supabase = createClient();
   const [birthday, setBirthday] = useState(initialBirthday);
   const [reengagement, setReengagement] = useState(initialReengagement);
   const [classReminder, setClassReminder] = useState(initialClassReminder);
+  const [sms, setSms] = useState(initialSms);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -33,6 +36,7 @@ export function EmailAutomationSettingsForm({
       birthday_enabled: birthday,
       reengagement_enabled: reengagement,
       class_reminder_enabled: classReminder,
+      sms_enabled: sms,
     });
 
     setLoading(false);
@@ -49,6 +53,13 @@ export function EmailAutomationSettingsForm({
         onChange={setReengagement}
       />
       <Toggle label="Class reminder emails" checked={classReminder} onChange={setClassReminder} />
+      <div>
+        <Toggle label="Also send SMS for the above" checked={sms} onChange={setSms} />
+        <p className="mt-1.5 text-xs text-muted">
+          SMS delivery isn&apos;t connected yet — this saves your preference now so texts go out
+          automatically once a provider is configured.
+        </p>
+      </div>
       <button
         type="submit"
         disabled={loading}

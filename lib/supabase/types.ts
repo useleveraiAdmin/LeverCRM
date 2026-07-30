@@ -293,6 +293,7 @@ export type Database = {
           class_reminder_enabled: boolean
           gym_id: string
           reengagement_enabled: boolean
+          sms_enabled: boolean
           updated_at: string
         }
         Insert: {
@@ -300,6 +301,7 @@ export type Database = {
           class_reminder_enabled?: boolean
           gym_id: string
           reengagement_enabled?: boolean
+          sms_enabled?: boolean
           updated_at?: string
         }
         Update: {
@@ -307,6 +309,7 @@ export type Database = {
           class_reminder_enabled?: boolean
           gym_id?: string
           reengagement_enabled?: boolean
+          sms_enabled?: boolean
           updated_at?: string
         }
         Relationships: [

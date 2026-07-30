@@ -11,7 +11,7 @@ export default async function EmailAutomationsPage() {
   const supabase = await createClient();
   const { data: settings } = await supabase
     .from("email_automation_settings")
-    .select("birthday_enabled, reengagement_enabled, class_reminder_enabled")
+    .select("birthday_enabled, reengagement_enabled, class_reminder_enabled, sms_enabled")
     .eq("gym_id", context.gymId)
     .maybeSingle();
 
@@ -29,6 +29,7 @@ export default async function EmailAutomationsPage() {
           initialBirthday={settings?.birthday_enabled ?? true}
           initialReengagement={settings?.reengagement_enabled ?? true}
           initialClassReminder={settings?.class_reminder_enabled ?? true}
+          initialSms={settings?.sms_enabled ?? false}
         />
       </div>
     </div>
