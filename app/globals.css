@@ -192,6 +192,102 @@ table.table tbody td {
   border-bottom: 1px solid var(--border);
 }
 
+/* Member shell: bottom tab bar on mobile, becomes a left sidebar at >=900px */
+.member-shell .app-grid {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.member-shell .bnav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  background: rgba(6, 8, 16, 0.97);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 8px 4px;
+  z-index: 40;
+}
+.member-shell .bnav a,
+.member-shell .bnav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: var(--r1);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.member-shell .bnav a.active {
+  color: var(--gym-primary);
+}
+.member-shell .app-main {
+  flex: 1;
+  padding: 20px 16px 88px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+.member-shell .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(6, 8, 16, 0.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .member-shell .app-grid {
+    flex-direction: row;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .member-shell .bnav {
+    position: static;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 220px;
+    flex-shrink: 0;
+    border-top: none;
+    border-right: 1px solid var(--border);
+    background: transparent;
+    backdrop-filter: none;
+    padding: 28px 12px;
+    gap: 4px;
+  }
+  .member-shell .bnav a,
+.member-shell .bnav button {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    padding: 10px 12px;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .member-shell .app-main {
+    padding: 32px;
+    max-width: 660px;
+    margin: 0;
+  }
+  .member-shell .app-header {
+    position: static;
+    max-width: none;
+    padding: 20px 32px 0;
+  }
+}
+
 /* Toasts */
 .toast-stack {
   position: fixed;

@@ -1,5 +1,6 @@
 import { getMemberContext } from "@/lib/member/context";
 import { MemberNav } from "./member-nav";
+import { MemberHeader } from "./member-header";
 
 export default async function MemberAppLayout({
   children,
@@ -13,16 +14,21 @@ export default async function MemberAppLayout({
 
   return (
     <div
-      className="flex flex-1"
+      className="member-shell flex flex-1 flex-col"
       style={
         {
           "--gym-primary": context.branding.primaryColor || undefined,
           "--gym-secondary": context.branding.secondaryColor || undefined,
+          background: "var(--background)",
+          color: "var(--foreground)",
         } as React.CSSProperties
       }
     >
-      <MemberNav context={context} />
-      <div className="flex-1 overflow-y-auto p-8">{children}</div>
+      <MemberHeader gymName={context.gymName} />
+      <div className="app-grid">
+        <MemberNav context={context} />
+        <main className="app-main">{children}</main>
+      </div>
     </div>
   );
 }
