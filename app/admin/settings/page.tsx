@@ -26,6 +26,15 @@ export default async function SettingsPage() {
       </div>
 
       <div className="card mt-6">
+        <h2 className="text-lg font-semibold">Payments</h2>
+        <p className="mt-2 text-sm text-muted">
+          Gym shop and package purchases are reserved online and paid for in person (cash, card reader,
+          or however you already collect payment at the front desk) — LeverCRM doesn&apos;t process payments
+          for you yet. Card/terminal processor integration is planned for a future update.
+        </p>
+      </div>
+
+      <div className="card mt-6">
         <h2 className="text-lg font-semibold">Member levels</h2>
         <p className="mt-1 text-sm text-muted">
           Define your own level or rank system — shown on client profiles instead of a fixed belt system.

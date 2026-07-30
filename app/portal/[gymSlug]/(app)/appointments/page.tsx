@@ -14,7 +14,7 @@ export default async function MemberAppointmentsPage({
 
   const supabase = await createClient();
   const [{ data: instructors }, { data: myAppointments }] = await Promise.all([
-    supabase.from("staff").select("id, full_name"),
+    supabase.from("staff").select("id, full_name, venmo_handle, cashapp_handle, zelle_handle, applecash_handle"),
     supabase
       .from("appointments")
       .select("id, start_at, status, staff(full_name)")
@@ -29,7 +29,7 @@ export default async function MemberAppointmentsPage({
       <h1 className="text-2xl font-semibold">Private lessons</h1>
       <p className="mt-1 text-muted">Book a 1-on-1 session with an instructor.</p>
 
-      <div className="mt-8 rounded-xl border border-border bg-surface p-6">
+      <div className="card mt-8">
         <BookAppointmentForm
           gymId={context.gymId}
           memberId={context.memberId}
@@ -41,10 +41,7 @@ export default async function MemberAppointmentsPage({
         {(myAppointments ?? []).map((a) => {
           const instructor = a.staff as unknown as { full_name: string } | null;
           return (
-            <div
-              key={a.id}
-              className="flex items-center justify-between rounded-xl border border-border bg-surface p-4"
-            >
+            <div key={a.id} className="card flex items-center justify-between">
               <div>
                 <p className="font-medium">with {instructor?.full_name ?? "Unknown"}</p>
                 <p className="text-sm text-muted">

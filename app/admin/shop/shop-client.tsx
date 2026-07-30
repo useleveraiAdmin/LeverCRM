@@ -9,6 +9,7 @@ export function CreateProductForm({ gymId }: { gymId: string }) {
   const supabase = createClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [productType, setProductType] = useState<"retail" | "membership" | "package">("retail");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
@@ -25,6 +26,7 @@ export function CreateProductForm({ gymId }: { gymId: string }) {
       gym_id: gymId,
       name,
       description: description || null,
+      product_type: productType,
       price_cents: priceCents,
       stock_count: stock,
       image_url: imageUrl || null,
@@ -38,6 +40,7 @@ export function CreateProductForm({ gymId }: { gymId: string }) {
 
     setName("");
     setDescription("");
+    setProductType("retail");
     setPrice("");
     setStock(0);
     setImageUrl("");
@@ -51,6 +54,14 @@ export function CreateProductForm({ gymId }: { gymId: string }) {
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-muted">Product name</span>
           <input required value={name} onChange={(e) => setName(e.target.value)} className="input" />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-medium text-muted">Type</span>
+          <select value={productType} onChange={(e) => setProductType(e.target.value as typeof productType)} className="input">
+            <option value="retail">Retail gear</option>
+            <option value="membership">Membership</option>
+            <option value="package">Class package</option>
+          </select>
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-muted">Price (USD)</span>
@@ -99,6 +110,7 @@ export function CreateProductForm({ gymId }: { gymId: string }) {
 type Product = {
   id: string;
   name: string;
+  product_type: string;
   price_cents: number;
   stock_count: number;
   active: boolean;
@@ -136,6 +148,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
       <thead>
         <tr className="border-b border-border text-left text-muted">
           <th className="py-2 font-medium">Product</th>
+          <th className="py-2 font-medium">Type</th>
           <th className="py-2 font-medium">Price</th>
           <th className="py-2 font-medium">Stock</th>
           <th className="py-2 font-medium">Active</th>
@@ -146,6 +159,9 @@ export function ProductsTable({ products }: { products: Product[] }) {
         {products.map((p) => (
           <tr key={p.id} className="border-b border-border/50">
             <td className="py-3">{p.name}</td>
+            <td className="py-3">
+              <span className="badge badge-neutral">{p.product_type}</span>
+            </td>
             <td className="py-3">${(p.price_cents / 100).toFixed(2)}</td>
             <td className="py-3">
               <input

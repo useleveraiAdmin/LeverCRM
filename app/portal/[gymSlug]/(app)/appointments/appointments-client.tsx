@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AvailabilitySlotPicker } from "@/components/availability-slot-picker";
 
-type Instructor = { id: string; full_name: string };
+type Instructor = { id: string; full_name: string; venmo_handle: string | null; cashapp_handle: string | null; zelle_handle: string | null; applecash_handle: string | null };
 
 export function BookAppointmentForm({
   gymId,
@@ -18,39 +19,27 @@ export function BookAppointmentForm({
   const router = useRouter();
   const supabase = createClient();
   const [staffId, setStaffId] = useState("");
-  const [startAt, setStartAt] = useState("");
-  const [durationMinutes, setDurationMinutes] = useState(30);
+  const [range, setRange] = useState<{ start: string; end: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const selectedInstructor = instructors.find((i) => i.id === staffId);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const start = new Date(startAt);
-    const end = new Date(start.getTime() + durationMinutes * 60_000);
-
-    const { data: conflicts } = await supabase
-      .from("appointments")
-      .select("id")
-      .eq("staff_id", staffId)
-      .eq("status", "booked")
-      .lt("start_at", end.toISOString())
-      .gt("end_at", start.toISOString());
-
-    if (conflicts && conflicts.length > 0) {
-      setError("That instructor is already booked at that time.");
-      setLoading(false);
+    if (!range) {
+      setError("Pick an open time slot.");
       return;
     }
+    setLoading(true);
+    setError(null);
 
     const { error: insertError } = await supabase.from("appointments").insert({
       gym_id: gymId,
       member_id: memberId,
       staff_id: staffId,
-      start_at: start.toISOString(),
-      end_at: end.toISOString(),
+      start_at: range.start,
+      end_at: range.end,
     });
 
     if (insertError) {
@@ -59,16 +48,16 @@ export function BookAppointmentForm({
       return;
     }
 
-    setStartAt("");
+    setRange(null);
     setLoading(false);
     router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Instructor</span>
-        <select required value={staffId} onChange={(e) => setStaffId(e.target.value)} className="input">
+        <select required value={staffId} onChange={(e) => { setStaffId(e.target.value); setRange(null); }} className="input">
           <option value="">Select instructor</option>
           {instructors.map((s) => (
             <option key={s.id} value={s.id}>
@@ -77,36 +66,22 @@ export function BookAppointmentForm({
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Starts at</span>
-        <input
-          required
-          type="datetime-local"
-          value={startAt}
-          onChange={(e) => setStartAt(e.target.value)}
-          className="input"
-        />
-      </label>
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Duration (min)</span>
-        <input
-          required
-          type="number"
-          min={15}
-          step={15}
-          value={durationMinutes}
-          onChange={(e) => setDurationMinutes(Number(e.target.value))}
-          className="input w-24"
-        />
-      </label>
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded-lg bg-gym-primary px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
-      >
+      {staffId && <AvailabilitySlotPicker instructorId={staffId} onSelect={(start, end) => setRange({ start, end })} />}
+      {selectedInstructor && (selectedInstructor.venmo_handle || selectedInstructor.cashapp_handle || selectedInstructor.zelle_handle || selectedInstructor.applecash_handle) && (
+        <div className="rounded-lg border p-3 text-xs" style={{ borderColor: "var(--border)" }}>
+          <p className="font-medium text-muted">Pay {selectedInstructor.full_name} directly:</p>
+          <div className="mt-1 flex flex-wrap gap-3">
+            {selectedInstructor.venmo_handle && <span>Venmo: {selectedInstructor.venmo_handle}</span>}
+            {selectedInstructor.cashapp_handle && <span>Cash App: {selectedInstructor.cashapp_handle}</span>}
+            {selectedInstructor.zelle_handle && <span>Zelle: {selectedInstructor.zelle_handle}</span>}
+            {selectedInstructor.applecash_handle && <span>Apple Cash: {selectedInstructor.applecash_handle}</span>}
+          </div>
+        </div>
+      )}
+      <button type="submit" disabled={loading || !range} className="btn btn-primary w-fit">
         {loading ? "Booking…" : "Book"}
       </button>
-      {error && <p className="w-full text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm" style={{ color: "var(--danger)" }}>{error}</p>}
     </form>
   );
 }
@@ -124,11 +99,7 @@ export function CancelAppointmentButton({ appointmentId }: { appointmentId: stri
   }
 
   return (
-    <button
-      onClick={handleCancel}
-      disabled={loading}
-      className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition hover:bg-surface-2 disabled:opacity-50"
-    >
+    <button onClick={handleCancel} disabled={loading} className="btn btn-outline">
       {loading ? "Cancelling…" : "Cancel"}
     </button>
   );
