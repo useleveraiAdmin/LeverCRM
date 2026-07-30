@@ -2,8 +2,15 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Playfair_Display } from "next/font/google";
 import { createClient } from "@/lib/supabase/client";
 import { completeStaffSignupIfNeeded } from "@/lib/auth/complete-signup";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-playfair",
+});
 
 export default function StaffLoginPage() {
   return (
@@ -69,50 +76,75 @@ function StaffLoginForm() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center px-6 py-16">
+    <main
+      className={`${playfair.variable} flex flex-1 items-center justify-center px-6 py-16`}
+      style={{ background: "#F9F6F2", color: "#1A1A1A" }}
+    >
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-xl border border-border bg-surface p-8"
+        className="w-full max-w-sm rounded-2xl border p-8 shadow-sm"
+        style={{ borderColor: "#E8E3DC", background: "#FFFFFF" }}
       >
-        <h1 className="text-xl font-semibold">Staff sign in</h1>
-        <p className="mt-1 text-sm text-muted">For gym owners, managers, and front desk.</p>
+        <h1
+          className="text-2xl font-semibold"
+          style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+        >
+          Staff sign in
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: "#64748B" }}>
+          For gym owners, managers, and front desk.
+        </p>
 
         <div className="mt-6 flex flex-col gap-4">
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-muted">Email</span>
+            <span className="text-sm font-medium" style={{ color: "#64748B" }}>
+              Email
+            </span>
             <input
               required
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input"
+              className="rounded-lg border px-3 py-2 text-sm outline-none"
+              style={{ borderColor: "#E8E3DC" }}
             />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-muted">Password</span>
+            <span className="text-sm font-medium" style={{ color: "#64748B" }}>
+              Password
+            </span>
             <input
               required
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input"
+              className="rounded-lg border px-3 py-2 text-sm outline-none"
+              style={{ borderColor: "#E8E3DC" }}
             />
           </label>
         </div>
 
-        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+        {error && (
+          <p className="mt-4 text-sm" style={{ color: "#E63946" }}>
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full rounded-lg bg-gym-primary px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+          className="mt-6 w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+          style={{ background: "#E63946" }}
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>
 
-        <p className="mt-4 text-center text-sm text-muted">
+        <p className="mt-4 text-center text-sm" style={{ color: "#64748B" }}>
           New gym?{" "}
-          <a href="https://levercrm-landing.netlify.app/signup.html" className="text-gym-primary">
+          <a
+            href="https://levercrm-landing.netlify.app/signup.html"
+            style={{ color: "#E63946", fontWeight: 600 }}
+          >
             Create an account
           </a>
         </p>
