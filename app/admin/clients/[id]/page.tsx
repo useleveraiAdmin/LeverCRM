@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminContext } from "@/lib/admin/context";
-import { ProfileEditForm, NotesSection, DocumentsSection } from "./client-detail-client";
+import { ProfileEditForm, NotesSection, DocumentsSection, WaiverSection } from "./client-detail-client";
 
 export default async function ClientDetailPage({
   params,
@@ -21,6 +21,8 @@ export default async function ClientDetailPage({
     { data: documents },
     { data: stats },
     { data: appointments },
+    { data: activeWaiverRow },
+    { data: waiverSigRows },
   ] = await Promise.all([
     supabase.from("members").select("*").eq("id", id).maybeSingle(),
     supabase.from("gym_levels").select("id, name").order("sort_order"),
@@ -34,9 +36,35 @@ export default async function ClientDetailPage({
       .eq("member_id", id)
       .order("start_at", { ascending: false })
       .limit(10),
+    supabase.from("waivers").select("id, title, storage_path").eq("gym_id", context.gymId).eq("is_active", true).maybeSingle(),
+    supabase
+      .from("waiver_signatures")
+      .select("id, capture_method, typed_name, signed_at, final_pdf_path, staff:witnessed_by_staff_id(full_name)")
+      .eq("member_id", id)
+      .order("signed_at", { ascending: false }),
   ]);
 
   if (!member) notFound();
+
+  const activeWaiver = activeWaiverRow
+    ? { id: activeWaiverRow.id, title: activeWaiverRow.title, storagePath: activeWaiverRow.storage_path }
+    : null;
+
+  const waiverSignatures = await Promise.all(
+    (waiverSigRows ?? []).map(async (s) => {
+      const { data: signedUrlData } = await supabase.storage
+        .from("signed-waivers")
+        .createSignedUrl(s.final_pdf_path, 3600);
+      return {
+        id: s.id,
+        captureMethod: s.capture_method,
+        typedName: s.typed_name,
+        witnessedByName: (s.staff as unknown as { full_name: string } | null)?.full_name ?? null,
+        signedAt: s.signed_at,
+        downloadUrl: signedUrlData?.signedUrl ?? null,
+      };
+    })
+  );
 
   return (
     <div>
@@ -67,6 +95,21 @@ export default async function ClientDetailPage({
             parentMemberId={member.parent_member_id}
             levels={levels ?? []}
             otherMembers={otherMembers ?? []}
+          />
+        </div>
+      </div>
+
+      <div className="card mt-6">
+        <h2 className="text-lg font-semibold">Waiver</h2>
+        <div className="mt-4">
+          <WaiverSection
+            gymId={context.gymId}
+            staffId={context.staffId}
+            memberId={member.id}
+            memberName={member.full_name}
+            activeWaiver={activeWaiver}
+            signatures={waiverSignatures}
+            canManage={canManage}
           />
         </div>
       </div>

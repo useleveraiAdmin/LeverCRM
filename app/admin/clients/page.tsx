@@ -13,6 +13,16 @@ export default async function ClientsPage({
   const canManage = context.role === "owner" || context.role === "manager";
   const supabase = await createClient();
 
+  const { data: activeWaiverRow } = await supabase
+    .from("waivers")
+    .select("id, title, storage_path")
+    .eq("gym_id", context.gymId)
+    .eq("is_active", true)
+    .maybeSingle();
+  const activeWaiver = activeWaiverRow
+    ? { id: activeWaiverRow.id, title: activeWaiverRow.title, storagePath: activeWaiverRow.storage_path }
+    : null;
+
   let query = supabase
     .from("members")
     .select("id, full_name, email, phone, date_of_birth, gym_levels(name)")
@@ -49,7 +59,7 @@ export default async function ClientsPage({
       </form>
 
       <div className="mt-4">
-        <AddClientForm canManage={canManage} />
+        <AddClientForm canManage={canManage} gymId={context.gymId} staffId={context.staffId} activeWaiver={activeWaiver} />
       </div>
 
       <div className="card mt-6">

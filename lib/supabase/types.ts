@@ -1103,6 +1103,140 @@ export type Database = {
           },
         ]
       }
+      waiver_signatures: {
+        Row: {
+          attestation_confirmed: boolean
+          capture_method: string
+          created_at: string
+          esign_consent_at: string | null
+          final_pdf_hash: string
+          final_pdf_path: string
+          gym_id: string
+          id: string
+          ip_address: string | null
+          member_id: string
+          signed_at: string
+          typed_name: string | null
+          user_agent: string | null
+          waiver_id: string | null
+          witnessed_by_staff_id: string | null
+        }
+        Insert: {
+          attestation_confirmed?: boolean
+          capture_method: string
+          created_at?: string
+          esign_consent_at?: string | null
+          final_pdf_hash: string
+          final_pdf_path: string
+          gym_id: string
+          id?: string
+          ip_address?: string | null
+          member_id: string
+          signed_at?: string
+          typed_name?: string | null
+          user_agent?: string | null
+          waiver_id?: string | null
+          witnessed_by_staff_id?: string | null
+        }
+        Update: {
+          attestation_confirmed?: boolean
+          capture_method?: string
+          created_at?: string
+          esign_consent_at?: string | null
+          final_pdf_hash?: string
+          final_pdf_path?: string
+          gym_id?: string
+          id?: string
+          ip_address?: string | null
+          member_id?: string
+          signed_at?: string
+          typed_name?: string | null
+          user_agent?: string | null
+          waiver_id?: string | null
+          witnessed_by_staff_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waiver_signatures_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waiver_signatures_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waiver_signatures_waiver_id_fkey"
+            columns: ["waiver_id"]
+            isOneToOne: false
+            referencedRelation: "waivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waiver_signatures_witnessed_by_staff_id_fkey"
+            columns: ["witnessed_by_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waivers: {
+        Row: {
+          created_at: string
+          created_by: string
+          file_hash: string
+          gym_id: string
+          id: string
+          is_active: boolean
+          storage_path: string
+          title: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          file_hash: string
+          gym_id: string
+          id?: string
+          is_active?: boolean
+          storage_path: string
+          title: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          file_hash?: string
+          gym_id?: string
+          id?: string
+          is_active?: boolean
+          storage_path?: string
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waivers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waivers_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       member_checkin_stats: {

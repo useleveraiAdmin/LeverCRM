@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { WaiverSignForm } from "@/components/waiver-sign-form";
 
 type Level = { id: string; name: string };
 type Member = { id: string; full_name: string };
@@ -221,8 +222,8 @@ export function DocumentsSection({
   const router = useRouter();
   const supabase = createClient();
   const [open, setOpen] = useState(false);
-  const [type, setType] = useState<"waiver" | "intake" | "other">("waiver");
-  const [title, setTitle] = useState("Liability waiver");
+  const [type, setType] = useState<"intake" | "other">("intake");
+  const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
@@ -313,7 +314,6 @@ export function DocumentsSection({
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-muted">Type</span>
               <select value={type} onChange={(e) => setType(e.target.value as typeof type)} className="input">
-                <option value="waiver">Waiver</option>
                 <option value="intake">Intake form</option>
                 <option value="other">Other</option>
               </select>
@@ -349,6 +349,216 @@ export function DocumentsSection({
               Cancel
             </button>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+type ActiveWaiver = { id: string; title: string; storagePath: string };
+type WaiverSignatureRow = {
+  id: string;
+  captureMethod: string;
+  typedName: string | null;
+  witnessedByName: string | null;
+  signedAt: string;
+  downloadUrl: string | null;
+};
+
+const CAPTURE_LABELS: Record<string, string> = {
+  external_upload: "Uploaded (already signed)",
+  in_person: "Signed in person",
+  self_serve: "Signed in app",
+};
+
+export function WaiverSection({
+  gymId,
+  staffId,
+  memberId,
+  memberName,
+  activeWaiver,
+  signatures,
+  canManage,
+}: {
+  gymId: string;
+  staffId: string;
+  memberId: string;
+  memberName: string;
+  activeWaiver: ActiveWaiver | null;
+  signatures: WaiverSignatureRow[];
+  canManage: boolean;
+}) {
+  const router = useRouter();
+  const supabase = createClient();
+  const [mode, setMode] = useState<"closed" | "upload" | "in_person">("closed");
+  const [signedDate, setSignedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [attested, setAttested] = useState(false);
+  const uploadRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [inPersonPdfUrl, setInPersonPdfUrl] = useState<string | null>(null);
+
+  async function handleUpload(e: React.FormEvent) {
+    e.preventDefault();
+    const file = uploadRef.current?.files?.[0];
+    if (!file) {
+      setError("Choose the signed waiver PDF to upload.");
+      return;
+    }
+    if (!attested) {
+      setError("Confirm this is a valid signed waiver before continuing.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+
+    const bytes = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
+    const fileHash = Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    const signatureId = crypto.randomUUID();
+    const path = `${gymId}/${memberId}/${signatureId}.pdf`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("signed-waivers")
+      .upload(path, file, { contentType: "application/pdf" });
+    if (uploadError) {
+      setLoading(false);
+      setError(uploadError.message);
+      return;
+    }
+
+    const { error: insertError } = await supabase.from("waiver_signatures").insert({
+      id: signatureId,
+      waiver_id: activeWaiver?.id ?? null,
+      gym_id: gymId,
+      member_id: memberId,
+      capture_method: "external_upload",
+      witnessed_by_staff_id: staffId,
+      attestation_confirmed: true,
+      final_pdf_path: path,
+      final_pdf_hash: fileHash,
+      signed_at: new Date(signedDate).toISOString(),
+    });
+    setLoading(false);
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+    setMode("closed");
+    router.refresh();
+  }
+
+  async function startInPerson() {
+    if (!activeWaiver) return;
+    setError(null);
+    const { data } = await supabase.storage.from("waiver-templates").createSignedUrl(activeWaiver.storagePath, 3600);
+    if (!data?.signedUrl) {
+      setError("Couldn't load the waiver PDF.");
+      return;
+    }
+    setInPersonPdfUrl(data.signedUrl);
+    setMode("in_person");
+  }
+
+  return (
+    <div>
+      <div className="flex flex-col gap-2">
+        {signatures.map((s) => (
+          <div
+            key={s.id}
+            className="flex items-center justify-between rounded-lg border px-3 py-2"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <div>
+              <p className="text-sm font-medium">{CAPTURE_LABELS[s.captureMethod] ?? s.captureMethod}</p>
+              <p className="text-xs text-muted">
+                {new Date(s.signedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                {s.typedName ? ` · signed as ${s.typedName}` : ""}
+                {s.witnessedByName ? ` · witnessed by ${s.witnessedByName}` : ""}
+              </p>
+            </div>
+            {s.downloadUrl && (
+              <a
+                href={s.downloadUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-medium"
+                style={{ color: "var(--gym-primary)" }}
+              >
+                Download PDF
+              </a>
+            )}
+          </div>
+        ))}
+        {signatures.length === 0 && <p className="text-sm text-muted">No waiver on file yet.</p>}
+      </div>
+
+      {error && (
+        <p className="mt-2 text-sm" style={{ color: "var(--danger)" }}>
+          {error}
+        </p>
+      )}
+
+      {canManage && mode === "closed" && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <button className="btn btn-outline" onClick={() => setMode("upload")}>
+            + Upload signed waiver
+          </button>
+          <button className="btn btn-outline" onClick={startInPerson} disabled={!activeWaiver}>
+            + Sign now
+          </button>
+          {!activeWaiver && (
+            <span className="text-xs text-muted">Upload a waiver template under Waivers to enable in-person signing.</span>
+          )}
+        </div>
+      )}
+
+      {mode === "upload" && (
+        <form
+          onSubmit={handleUpload}
+          className="mt-3 flex flex-col gap-2 rounded-lg border p-3"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted">Signed waiver (PDF)</span>
+            <input ref={uploadRef} type="file" accept="application/pdf" className="input" />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted">Date it was signed</span>
+            <input type="date" value={signedDate} onChange={(e) => setSignedDate(e.target.value)} className="input" />
+          </label>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" checked={attested} onChange={(e) => setAttested(e.target.checked)} className="mt-0.5" />
+            <span>I confirm this is a valid signed waiver executed by this client.</span>
+          </label>
+          <div className="flex gap-2">
+            <button type="submit" disabled={loading} className="btn btn-primary">
+              {loading ? "Uploading…" : "Save"}
+            </button>
+            <button type="button" className="btn btn-outline" onClick={() => setMode("closed")}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {mode === "in_person" && inPersonPdfUrl && activeWaiver && (
+        <div className="mt-3 rounded-lg border p-3" style={{ borderColor: "var(--border)" }}>
+          <WaiverSignForm
+            waiverId={activeWaiver.id}
+            waiverTitle={activeWaiver.title}
+            pdfUrl={inPersonPdfUrl}
+            memberId={memberId}
+            captureMethod="in_person"
+            defaultName={memberName}
+            onComplete={() => {
+              setMode("closed");
+              router.refresh();
+            }}
+            onCancel={() => setMode("closed")}
+          />
         </div>
       )}
     </div>
