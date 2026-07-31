@@ -226,7 +226,7 @@ export function AddClientForm({
             />
             <span>
               Have them sign now, on this device
-              {!activeWaiver && " — upload a waiver template under Waivers first"}
+              {!activeWaiver && " — upload a waiver template under Settings first"}
             </span>
           </label>
           <label className="flex items-start gap-2 text-sm">

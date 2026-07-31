@@ -39,7 +39,6 @@ export function AdminNav({ context }: { context: AdminContext }) {
       label: "Email automations",
       show: tierFlags.email_automation && role === "owner",
     },
-    { href: "/admin/waivers", label: "Waivers", show: role === "owner" || role === "manager" },
     { href: "/admin/staff", label: "Staff", show: role === "owner" },
     { href: "/admin/branding", label: "Branding", show: role === "owner" },
     { href: "/admin/billing", label: "Billing", show: role === "owner" },

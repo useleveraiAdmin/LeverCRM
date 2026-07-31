@@ -510,7 +510,7 @@ export function WaiverSection({
             + Sign now
           </button>
           {!activeWaiver && (
-            <span className="text-xs text-muted">Upload a waiver template under Waivers to enable in-person signing.</span>
+            <span className="text-xs text-muted">Upload a waiver template under Settings to enable in-person signing.</span>
           )}
         </div>
       )}
